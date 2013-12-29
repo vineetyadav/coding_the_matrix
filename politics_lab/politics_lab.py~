@@ -1,0 +1,190 @@
+voting_data = list(open("voting_record_dump109.txt"))
+
+## Task 1
+
+def create_voting_dict():
+    """
+    Input: None (use voting_data above)
+    Output: A dictionary that maps the last name of a senator
+            to a list of numbers representing the senator's voting
+            record.
+    Example: 
+        >>> create_voting_dict()['Clinton']
+        [-1, 1, 1, 1, 0, 0, -1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, 1]
+
+    This procedure should return a dictionary that maps the last name
+    of a senator to a list of numbers representing that senator's
+    voting record, using the list of strings from the dump file (strlist). You
+    will need to use the built-in procedure int() to convert a string
+    representation of an integer (e.g. '1') to the actual integer
+    (e.g. 1).
+
+    You can use the split() procedure to split each line of the
+    strlist into a list; the first element of the list will be the senator's
+    name, the second will be his/her party affiliation (R or D), the
+    third will be his/her home state, and the remaining elements of
+    the list will be that senator's voting record on a collection of bills.
+    A "1" represents a 'yea' vote, a "-1" a 'nay', and a "0" an abstention.
+
+    The lists for each senator should preserve the order listed in voting data. 
+    """
+    f = open('voting_record_dump109.txt','r')
+    rdict = dict()
+    for each in f:
+        eachitems = each.split()
+        rdict.setdefault(eachitems[0],[int(temp) for temp in eachitems[3:]])
+    return rdict 
+    
+
+## Task 2
+
+def policy_compare(sen_a, sen_b, voting_dict):
+    """
+    Input: last names of sen_a and sen_b, and a voting dictionary mapping senator
+           names to lists representing their voting records.
+    Output: the dot-product (as a number) representing the degree of similarity
+            between two senators' voting policies
+    Example:
+        >>> voting_dict = {'Fox-Epstein':[-1,-1,-1,1],'Ravella':[1,1,1,1]}
+        >>> policy_compare('Fox-Epstein','Ravella', voting_dict)
+        -2
+    """
+    
+    return sum([x*y for (x,y) in zip(voting_dict[sen_a],voting_dict[sen_b])])
+
+
+## Task 3
+
+def most_similar(sen, voting_dict):
+    """
+    Input: the last name of a senator, and a dictionary mapping senator names
+           to lists representing their voting records.
+    Output: the last name of the senator whose political mindset is most
+            like the input senator (excluding, of course, the input senator
+            him/herself). Resolve ties arbitrarily.
+    Example:
+        >>> vd = {'Klein': [1,1,1], 'Fox-Epstein': [1,-1,0], 'Ravella': [-1,0,0]}
+        >>> most_similar('Klein', vd)
+        'Fox-Epstein'
+
+    Note that you can (and are encouraged to) re-use you policy_compare procedure.
+    """
+    max = 0
+    return_sen = ""
+    for each_sen in voting_dict:
+        if each_sen!=sen: 
+            if max<=policy_compare(sen,each_sen,voting_dict):
+                max = policy_compare(sen,each_sen,voting_dict)
+                return_sen = each_sen
+            
+    return return_sen
+    
+
+## Task 4
+
+def least_similar(sen, voting_dict):
+    """
+    Input: the last name of a senator, and a dictionary mapping senator names
+           to lists representing their voting records.
+    Output: the last name of the senator whose political mindset is least like the input
+            senator.
+    Example:
+        >>> vd = {'Klein': [1,1,1], 'Fox-Epstein': [1,-1,0], 'Ravella': [-1,0,0]}
+        >>> least_similar('Klein', vd)
+        'Ravella'
+    """
+    min = 1000000
+    return_sen = ""
+    for each_sen in voting_dict:
+        if each_sen!=sen: 
+            if min>=policy_compare(sen,each_sen,voting_dict):
+                min = policy_compare(sen,each_sen,voting_dict)
+                return_sen = each_sen
+            
+    return return_sen
+    
+    
+
+## Task 5
+
+most_like_chafee    = most_similar('Chafee',create_voting_dict())
+least_like_santorum = least_similar('Santorum',create_voting_dict())
+
+
+
+# Task 6
+
+def find_average_similarity(sen, sen_set, voting_dict):
+    """
+    Input: the name of a senator, a set of senator names, and a voting dictionary.
+    Output: the average dot-product between sen and those in sen_set.
+    Example:
+        >>> vd = {'Klein': [1,1,1], 'Fox-Epstein': [1,-1,0], 'Ravella': [-1,0,0]}
+        >>> find_average_similarity('Klein', {'Fox-Epstein','Ravella'}, vd)
+        -0.5
+    """
+    r_list = []
+    for each in list(sen_set):
+        r_list.append(policy_compare(sen,each,voting_dict))
+    #r_list = [policy_compare(sen,sen_b,voting_dict) for sen_b in sen_set]
+        
+    return  sum(r_list)/float(r_list)
+
+set_a = {'Kennedy', 'Byrd', 'Clinton', 'Baucus', 'Reid', 'Bingaman', 'Salazar', 'Levin','Landrieu', 'Conrad', 'Biden', 'Feinstein', 'Bayh', 'Durbin', 'Nelson1', 'Nelson2', 'Obama', 'Feingold', 'Inouye', 'Dodd', 'Mikulski', 'Dayton', 'Kerry', 'Schumer', 'Cantwell', 'Lautenberg', 'Akaka', 'Pryor', 'Murray', 'Rockefeller', 'Harkin', 'Dorgan', 'Lincoln', 'Johnson', 'Reed', 'Wyden', 'Sarbanes', 'Kohl', 'Lieberman', 'Leahy', 'Boxer', 'Stabenow', 'Carper'}
+max = 0
+
+"""for each in list(set_a):
+    #set_c = set_a.copy()
+    sen_diff = set_c.difference(set([each]))
+    if max<policy_compare(each,sen_diff,create_voting_dict()):
+        max = policy_compare(each,sen_diff,create_voting_dict())"""
+
+  
+most_average_Democrat = ... 
+#find_average_similarity(set(create_voting_dict.keys())) # give the last name (or code that computes the last name)
+
+
+# Task 7
+
+def find_average_record(sen_set, voting_dict):
+    """
+    Input: a set of last names, a voting dictionary
+    Output: a vector containing the average components of the voting records
+            of the senators in the input set
+    Example: 
+        >>> voting_dict = {'Klein': [-1,0,1], 'Fox-Epstein': [-1,-1,-1], 'Ravella': [0,0,1]}
+        >>> find_average_record({'Fox-Epstein','Ravella'}, voting_dict)
+        [-0.5, -0.5, 0.0]
+    """
+    
+    return [1.0*sum(each)/len(each) for each in zip(*[voting_dict[each1] for each1 in sen_set])]
+    
+
+average_Democrat_record = find_average_record({'Kennedy', 'Byrd', 'Clinton', 'Baucus', 'Reid', 'Bingaman', 'Salazar', 'Levin','Landrieu', 'Conrad', 'Biden', 'Feinstein', 'Bayh', 'Durbin', 'Nelson1', 'Nelson2', 'Obama', 'Feingold', 'Inouye', 'Dodd', 'Mikulski', 'Dayton', 'Kerry', 'Schumer', 'Cantwell', 'Lautenberg', 'Akaka', 'Pryor', 'Murray', 'Rockefeller', 'Harkin', 'Dorgan', 'Lincoln', 'Johnson', 'Reed', 'Wyden', 'Sarbanes', 'Kohl', 'Lieberman', 'Leahy', 'Boxer', 'Stabenow', 'Carper'},create_voting_dict()) # (give the vector)
+
+
+# Task 8
+
+def bitter_rivals(voting_dict):
+    """
+    Input: a dictionary mapping senator names to lists representing
+           their voting records
+    Output: a tuple containing the two senators who most strongly
+            disagree with one another.
+    Example: 
+        >>> voting_dict = {'Klein': [-1,0,1], 'Fox-Epstein': [-1,-1,-1], 'Ravella': [0,0,1]}bitter_rivals
+        >>> bitter_rivals(voting_dict)
+        ('Fox-Epstein', 'Ravella')
+    """
+    min = 100000
+    r_a = ""
+    r_b = ""
+    for each_a in voting_dict:
+        for each_b in voting_dict:
+            if each_a!=each_b:
+                if min>policy_compare(each_a,each_b,voting_dict):
+                    r_a = each_a
+                    r_b = each_b
+                    min = policy_compare(each_a,each_b,voting_dict)
+    return (r_a, r_b)
+
